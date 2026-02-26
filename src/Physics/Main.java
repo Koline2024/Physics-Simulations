@@ -1,7 +1,10 @@
 package Physics;
+
 import javafx.application.Application;
-import javafx.geometry.Insets;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.property.StringProperty;
 import javafx.geometry.Pos;
+import javafx.scene.Node;
 import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.Label;
@@ -10,32 +13,35 @@ import javafx.scene.layout.HBox;
 import javafx.scene.layout.Region;
 import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
+import javafx.scene.shape.Circle;
 
+public class Main extends Application {
 
-public class Main extends Application{
-    public static void main(String[] args){
+    public static void main(String[] args) {
         launch(args);
     }
 
     @Override
-    public void start(Stage primaryStage){
-        Scene scene = new Scene(createContent(), 400, 200);
+    public void start(Stage primaryStage) {
+        Scene scene = new Scene(simulate(), 800, 500);
         primaryStage.setScene(scene);
         primaryStage.show();
     }
 
-    private Region createContent(){
-        TextField inputTextField = new TextField("");
-        HBox inputRow = new HBox(new Label("Name: "), inputTextField);
-        inputRow.setSpacing(6);
-        inputRow.setAlignment(Pos.CENTER);
-        Label outputLabel = new Label("");
-        Button actionButton = new Button("Hello");
-        actionButton.setOnAction(e -> outputLabel.setText("Hello " + inputTextField.getText()));
-        VBox results = new VBox(20, inputRow, outputLabel, actionButton);
+    private Region simulate() {
+        VBox results = new VBox(setCircles());
+
+
         results.setAlignment(Pos.CENTER);
         return results;
     }
 
+    private Node setCircles(){
+        Circle circle = new Circle();
+        circle.setCenterX(100.0f);
+        circle.setCenterY(100.0f);
+        circle.setRadius(50.0f);
+        return circle;
+    }
 
 }
