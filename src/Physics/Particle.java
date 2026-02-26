@@ -1,11 +1,14 @@
 package Physics;
 
+import javafx.scene.shape.Circle;
+
 public class Particle {
     double mass;
     double vx;
     double vy;
     double x;
     double y;
+    Circle circle;
 
     public Particle(double mass, double vx, double vy, double x, double y){
         this.mass = mass;
@@ -16,6 +19,14 @@ public class Particle {
     }
 
     // Getters and setters
+
+    public Circle getCircle(){
+        return circle;
+    }
+
+    public void setCircle(Circle c){
+        this.circle = c;
+    }
 
     public double getMass(){
         return mass;
