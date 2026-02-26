@@ -1,22 +1,10 @@
 package Physics;
 
 import javafx.animation.AnimationTimer;
-import javafx.animation.TranslateTransition;
 import javafx.application.Application;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
-import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Node;
 import javafx.scene.Scene;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.TextField;
-import javafx.scene.layout.HBox;
-import javafx.scene.layout.Region;
-import javafx.scene.layout.VBox;
 import javafx.stage.Stage;
-import javafx.util.Duration;
 import javafx.scene.shape.Circle;
 import java.util.*;
 import javafx.scene.paint.Color;
@@ -35,78 +23,104 @@ public class Main extends Application {
         Scene scene = new Scene(root, 800, 500, Color.BLACK);
 
         addCircles(root);
-        
+        animate(root);
+
         primaryStage.setScene(scene);
         primaryStage.show();
-    }
-
-    private Region simulate() {
-        VBox results = new VBox(setParticles());
-        results.setAlignment(Pos.CENTER);
-        return results;
-    }
-
-    private Group setParticles() {
-        Group root = new Group();
-        for (Particle p : particles) {
-            Circle toBeAdded = new Circle(p.getX(), p.getY(), 10);
-            Color massColour = Color.color(p.getMass()/100, 0.2, p.getMass()/200);
-            toBeAdded.setFill(massColour);
-            root.getChildren().add(toBeAdded);
-        }
-        return root;
     }
 
     private void addCircles(Group root) {
         Random random = new Random();
         // Change this later
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < 3; i++) {
             double randMass = random.nextDouble(100);
-            double randVX = random.nextDouble(10);
-            double randVY = random.nextDouble(10);
+            double randVX = random.nextDouble(-2, 2);
+            double randVY = random.nextDouble(-2, 2);
             double randX = random.nextDouble(800);
             double randY = random.nextDouble(500);
 
             Particle p = new Particle(randMass, randVX, randVY, randX, randY);
             Circle toBeAdded = new Circle(p.getX(), p.getY(), 5);
-            Color massColour = Color.color(p.getMass()/100, 0, 0);
+            Color massColour = Color.color(p.getMass() / 100, 0, 1);
             toBeAdded.setFill(massColour);
             p.setCircle(toBeAdded);
             particles.add(p);
-            
+
             root.getChildren().add(toBeAdded);
         }
 
     }
 
-    private Vector<Double> getForces(Particle self){
-        Vector<Double> netForce = new Vector<>();
-        
-        for (Particle p : particles){
-            if (p.equals(self)){
+    private double[] getAcceleration(Particle self) {
+        double ax = 0;
+        double ay = 0;
+        double G = 5;
+        double SOFTENING = 100;
+
+        for (Particle p : particles) {
+            if (p.equals(self)) {
                 continue;
             }
-            Vector<Double> rVect = new Vector<>();
-            rVect.add(p.getX()-self.getX());
-            rVect.add(p.getY()-self.getY());
-            double r = Math.hypot(p.getX()-self.getX(), p.getY()-self.getY());
-            // F = mM/r^3 * r vector
-            double gravForceConst = p.getMass()*self.getMass()/(Math.pow(r, 3));
-            
-            
+
+            double dx = p.getX() - self.getX();
+            double dy = p.getY() - self.getY();
+            double rSq = dx * dx + dy * dy + SOFTENING;
+            double r = Math.sqrt(rSq);
+
+            // F = gmM/r^2, a = F/m = gM/r^2
+            double forceMag = G * p.getMass() / rSq;
+            // Split into components
+            ax += forceMag * (dx / r); // In x dir
+            ay += forceMag * (dy / r); // In y dir
+
         }
+
+        return new double[] { ax, ay };
     }
 
-    private void animate(Group root){
+    private void animate(Group root) {
         new AnimationTimer() {
             @Override
-            public void handle(long arg0) {
-                for(Particle p : particles){
-
-                }
-                
+            public void handle(long now) {
+                updateParticles();
             }
-        };
+        }.start();
+    }
+
+    private void updateParticles() {
+        double restitution = 0.8;
+        for (Particle p : particles) {
+            double[] acc = getAcceleration(p);
+
+            p.setVx(p.getVx() + acc[0]);
+            p.setVy(p.getVy() + acc[1]);
+
+            // Bounce off walls
+            if (p.getX() + p.getVx() >= 800) {
+                p.setVx(-restitution*p.getVx());
+                p.setX(800);
+            }
+            if (p.getX() + p.getVx() <= 0) {
+                p.setVx(-restitution*p.getVx());
+                p.setX(0);
+            }
+            if (p.getY() + p.getVy() >= 500) {
+                p.setVy(-restitution*p.getVy());
+                p.setY(500);
+            }
+            if (p.getY() + p.getVy() <= 0) {
+                p.setVy(-restitution*p.getVy());
+                p.setY(0);
+            }
+
+
+
+            p.setX(p.getX() + p.getVx());
+            p.setY(p.getY() + p.getVy());
+
+            p.getCircle().setCenterX(p.getX());
+            p.getCircle().setCenterY(p.getY());
+        }
     }
 
 }
