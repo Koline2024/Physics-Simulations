@@ -9,6 +9,7 @@ public class Particle {
     double x;
     double y;
     Circle circle;
+    Arrow netForceVector;
 
     public Particle(double mass, double vx, double vy, double x, double y){
         this.mass = mass;
@@ -26,6 +27,14 @@ public class Particle {
 
     public void setCircle(Circle c){
         this.circle = c;
+    }
+
+    public Arrow getForceVector(){
+        return netForceVector;
+    }
+
+    public void setForceVector(Arrow v){
+        netForceVector = v;
     }
 
     public double getMass(){

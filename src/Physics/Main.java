@@ -11,10 +11,12 @@ import javafx.scene.paint.Color;
 
 public class Main extends Application {
 
+    Random random = new Random();
+
     ArrayList<Particle> particles = new ArrayList<>();
     int width = 900;
     int height = 600;
-    int massLower = 0;
+    int massLower = 1;
     int massUpper = 100;
 
     public static void main(String[] args) {
@@ -26,7 +28,7 @@ public class Main extends Application {
         Group root = new Group();
         Scene scene = new Scene(root, width, height, Color.BLACK);
 
-        addCircles(root);
+        addParticles(root);
         animate(root);
         scene.setOnMouseClicked(e -> {
             // Check if the left mouse button was clicked
@@ -38,10 +40,10 @@ public class Main extends Application {
         primaryStage.show();
     }
 
-    private void addCircles(Group root) {
-        Random random = new Random();
+    private void addParticles(Group root) {
+        
         // Change this later
-        for (int i = 0; i < 3; i++) {
+        for (int i = 0; i < 2; i++) {
             double randMass = random.nextDouble(massLower, massUpper);
             double randVX = random.nextDouble(-2, 2);
             double randVY = random.nextDouble(-2, 2);
@@ -50,6 +52,9 @@ public class Main extends Application {
 
             Particle p = new Particle(randMass, randVX, randVY, randX, randY);
             Circle toBeAdded = new Circle(p.getX(), p.getY(), 5);
+            Arrow vect = new Arrow(0, 0, 0, 0);
+            vect.setStroke(Color.WHITE);
+            p.setForceVector(vect);
 
             if (randMass > 0) {
                 Color massColour = Color.color(p.getMass() / 100, 0, 1);
@@ -63,8 +68,12 @@ public class Main extends Application {
                 particles.add(p);
             }
 
-            root.getChildren().add(toBeAdded);
+            root.getChildren().addAll(toBeAdded, vect);
         }
+    }
+
+    private void addMass(Group root){
+        
     }
 
     private void addCircleUponClick(Group root, double x, double y) {
@@ -76,6 +85,9 @@ public class Main extends Application {
 
         Particle p = new Particle(randMass, randVX, randVY, x, y);
         Circle toBeAdded = new Circle(p.getX(), p.getY(), 5);
+        Arrow vect = new Arrow(0, 0, 0, 0);
+        vect.setStroke(Color.WHITE);
+        p.setForceVector(vect);
         if (randMass > 0) {
             Color massColour = Color.color(p.getMass() / 100, 0, 1);
             toBeAdded.setFill(massColour);
@@ -88,7 +100,7 @@ public class Main extends Application {
             particles.add(p);
         }
 
-        root.getChildren().add(toBeAdded);
+        root.getChildren().addAll(toBeAdded, vect);
 
     }
 
@@ -113,7 +125,15 @@ public class Main extends Application {
             // Split into components
             ax += forceMag * (dx / r); // In x dir
             ay += forceMag * (dy / r); // In y dir
+        }
 
+        if (self.getForceVector() != null) {
+            double scale = 500; // Adjust scale
+            self.getForceVector().updateArrow(
+                    self.getX(),
+                    self.getY(),
+                    self.getX() + (ax * scale),
+                    self.getY() + (ay * scale));
         }
 
         return new double[] { ax, ay };
@@ -129,7 +149,7 @@ public class Main extends Application {
     }
 
     private void updateParticles() {
-        double restitution = 0.65;
+        double restitution = 0.7;
         int numParticles = particles.size();
         // Acceleration matrix
         double[][] accelerations = new double[numParticles][2];
