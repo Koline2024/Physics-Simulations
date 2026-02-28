@@ -8,15 +8,17 @@ public class Particle {
     double vy;
     double x;
     double y;
+    double rad;
     Circle circle;
     Arrow netForceVector;
 
-    public Particle(double mass, double vx, double vy, double x, double y){
+    public Particle(double mass, double vx, double vy, double x, double y, double rad){
         this.mass = mass;
         this.vx = vx;
         this.vy = vy;
         this.x = x;
         this.y = y;
+        this.rad = rad;
     }
 
     // Getters and setters
@@ -35,6 +37,14 @@ public class Particle {
 
     public void setForceVector(Arrow v){
         netForceVector = v;
+    }
+
+    public double getRadius(){
+        return rad;
+    }
+
+    public void setRadius(double r){
+        rad = r;
     }
 
     public double getMass(){
